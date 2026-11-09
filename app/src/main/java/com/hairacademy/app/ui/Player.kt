@@ -43,7 +43,7 @@ import com.hairacademy.app.data.Video
 import com.hairacademy.app.data.formatDuration
 
 /** Источник страницы для YouTube-плеера (YouTube требует Referer/origin, иначе ошибка 153). Можно заменить на свой домен. */
-private const val EMBED_ORIGIN = "https://com.hairacademy.app"
+private const val EMBED_ORIGIN = "https://www.youtube.com"
 
 fun openExternally(context: Context, url: String) {
     try {
@@ -196,7 +196,7 @@ fun YouTubePlayer(
                     return false
                 }
             }
-            loadUrl("https://m.youtube.com/watch?v=" + videoId.filter { it.isLetterOrDigit() || it == '_' || it == '-' })
+            loadDataWithBaseURL("https://www.youtube.com", playerHtml(videoId), "text/html", "utf-8", null)
         }
     }
 
@@ -233,7 +233,7 @@ var ready = false;
 function onYouTubeIframeAPIReady() {
   new YT.Player('p', {
     width: '100%', height: '100%', videoId: '$id',
-    playerVars: { playsinline: 1, rel: 0, fs: 1, origin: '$EMBED_ORIGIN' },
+    playerVars: { playsinline: 1, rel: 0, fs: 1, modestbranding: 1, iv_load_policy: 3, origin: '$EMBED_ORIGIN' },
     events: {
       onReady: function () { ready = true; },
       onError: function (e) { Android.onPlayerFailed(e.data); }
