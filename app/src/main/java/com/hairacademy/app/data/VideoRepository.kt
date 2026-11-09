@@ -53,6 +53,7 @@ object VideoRepository {
             section = section,
             sub = sub,
             thumbnail = o.optString("thumbnail").trim(),
+            style = Style.from(o.optString("style")),
         )
     }
 }

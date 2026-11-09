@@ -12,6 +12,21 @@ enum class Sub(val id: String, val title: String, val shortTitle: String, val em
     }
 }
 
+/** Тип стрижки (для фильтра внутри подраздела). */
+enum class Style(val id: String, val title: String) {
+    FADE("fade", "Фейд"),
+    CROP("crop", "Кроп"),
+    UNDERCUT("undercut", "Андеркат"),
+    QUIFF("quiff", "Квифф"),
+    COMBOVER("combover", "Комб овер"),
+    TOPKNOT("topknot", "Топ нот"),
+    MULLET("mullet", "Маллет");
+
+    companion object {
+        fun from(id: String?): Style? = values().firstOrNull { it.id == id }
+    }
+}
+
 /** Раздел верхнего уровня. Цвета — градиент карточки на главном экране. */
 enum class Section(
     val id: String,
@@ -40,7 +55,12 @@ data class Video(
     val section: Section,
     val sub: Sub,
     val thumbnail: String,   // свой URL превью (нужен только если нет YouTube ID)
+    val style: Style? = null,
 ) {
+    /** Название сайта для видео не с YouTube (например, rutube.ru). */
+    val hostLabel: String
+        get() = if (isYoutube) "" else url.substringAfter("://").substringBefore("/").removePrefix("www.")
+
     val isYoutube: Boolean get() = id.isNotEmpty()
 
     /** Уникальный ключ — по нему хранится избранное и открывается плеер. */

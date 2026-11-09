@@ -159,7 +159,8 @@ fun VideoCard(video: Video, isFavorite: Boolean, onClick: () -> Unit, onToggleFa
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(
-                        video.channel,
+                        listOf(video.channel, video.hostLabel.let { if (it.isEmpty()) "" else "↗ $it" })
+                            .filter { it.isNotEmpty() }.joinToString("  ·  "),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
