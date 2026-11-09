@@ -43,7 +43,7 @@ import com.hairacademy.app.data.Video
 import com.hairacademy.app.data.formatDuration
 
 /** Источник страницы для YouTube-плеера (YouTube требует Referer/origin, иначе ошибка 153). Можно заменить на свой домен. */
-private const val EMBED_ORIGIN = "https://hairacademy.app"
+private const val EMBED_ORIGIN = "https://com.hairacademy.app"
 
 fun openExternally(context: Context, url: String) {
     try {
@@ -69,6 +69,7 @@ fun PlayerScreen(
     }
     val context = LocalContext.current
     var playerFailed by remember(video.key) { mutableStateOf(false) }
+    var errorCode by remember(video.key) { mutableStateOf(0) }
 
     AppScaffold("Урок", onBack) { pad ->
         Column(Modifier.padding(pad).verticalScroll(rememberScrollState())) {
@@ -76,7 +77,7 @@ fun PlayerScreen(
                 YouTubePlayer(
                     videoId = video.id,
                     modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
-                    onPlayerError = { playerFailed = true },
+                    onPlayerError = { code -> errorCode = code; playerFailed = true },
                     onShowFullscreen = onShowFullscreen,
                     onHideFullscreen = onHideFullscreen,
                 )
@@ -96,7 +97,7 @@ fun PlayerScreen(
                 }
                 if (playerFailed) {
                     Text(
-                        "Это видео нельзя воспроизвести внутри приложения — откройте его по ссылке.",
+                        "Это видео нельзя воспроизвести внутри приложения (код $errorCode) — откройте его по ссылке.",
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 0.dp),
@@ -151,7 +152,7 @@ fun PlayerScreen(
 fun YouTubePlayer(
     videoId: String,
     modifier: Modifier,
-    onPlayerError: () -> Unit,
+    onPlayerError: (Int) -> Unit,
     onShowFullscreen: (View, WebChromeClient.CustomViewCallback) -> Unit,
     onHideFullscreen: () -> Unit,
 ) {
@@ -171,7 +172,7 @@ fun YouTubePlayer(
             addJavascriptInterface(object {
                 @JavascriptInterface
                 fun onPlayerFailed(code: Int) {
-                    self.post { currentError() }
+                    self.post { currentError(code) }
                 }
             }, "Android")
             webChromeClient = object : WebChromeClient() {
