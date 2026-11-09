@@ -187,14 +187,16 @@ fun YouTubePlayer(
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                     // Любой переход «наружу» (например, по логотипу YouTube) открываем в браузере
-                    if (request.isForMainFrame) {
+                    val host = request.url.host.orEmpty()
+                    val own = host.endsWith("youtube.com") || host.endsWith("google.com") || host.endsWith("gstatic.com") || host.endsWith("googlevideo.com") || host.endsWith("youtube-nocookie.com")
+                    if (request.isForMainFrame && !own) {
                         openExternally(view.context, request.url.toString())
                         return true
                     }
                     return false
                 }
             }
-            loadDataWithBaseURL(EMBED_ORIGIN, playerHtml(videoId), "text/html", "utf-8", null)
+            loadUrl("https://m.youtube.com/watch?v=" + videoId.filter { it.isLetterOrDigit() || it == '_' || it == '-' })
         }
     }
 
