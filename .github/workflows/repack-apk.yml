@@ -1,0 +1,23 @@
+name: Repack web APK
+on:
+  push:
+    paths: ['repack/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  repack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repack, align, sign
+        run: |
+          BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          python3 repack/repack.py repack/base.apk repack/catalog.json /tmp/unsigned.apk
+          $BT/zipalign -f -p 4 /tmp/unsigned.apk /tmp/aligned.apk
+          $BT/apksigner sign --ks app/debug.keystore --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey --out HairAcademyWeb.apk /tmp/aligned.apk
+          $BT/apksigner verify HairAcademyWeb.apk
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "web-${{ github.run_number }}" HairAcademyWeb.apk --title "Web build ${{ github.run_number }}" --notes "Repacked HairAcademy 0.8 with new catalog" --latest=false
