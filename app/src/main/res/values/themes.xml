@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.HairAcademy" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#FF141416</item>
+        <item name="android:statusBarColor">#FF141416</item>
+        <item name="android:navigationBarColor">#FF1E1E22</item>
+    </style>
+</resources>
