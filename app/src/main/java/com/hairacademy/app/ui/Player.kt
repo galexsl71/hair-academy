@@ -43,7 +43,7 @@ import com.hairacademy.app.data.Video
 import com.hairacademy.app.data.formatDuration
 
 /** Источник страницы для YouTube-плеера (YouTube требует Referer/origin, иначе ошибка 153). Можно заменить на свой домен. */
-private const val EMBED_ORIGIN = "https://com.hairacademy.app"
+private const val EMBED_ORIGIN = "https://com.alex.hairacademy"
 
 fun openExternally(context: Context, url: String) {
     try {
@@ -228,25 +228,15 @@ fun YouTubePlayer(
 
 private fun playerHtml(rawId: String): String {
     val id = rawId.filter { it.isLetterOrDigit() || it == '_' || it == '-' }
+    // Тот же iframe, что в рабочем приложении 0.8
     return """
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#p{position:absolute;top:0;left:0;width:100%;height:100%}</style>
-</head><body><div id="p"></div>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script>
-var ready = false;
-function onYouTubeIframeAPIReady() {
-  new YT.Player('p', {
-    width: '100%', height: '100%', videoId: '$id',
-    playerVars: { playsinline: 1, rel: 0, fs: 1, modestbranding: 1, iv_load_policy: 3, origin: '$EMBED_ORIGIN' },
-    events: {
-      onReady: function () { ready = true; },
-      onError: function (e) { Android.onPlayerFailed(e.data); }
-    }
-  });
-}
-setTimeout(function () { if (!ready) Android.onPlayerFailed(-1); }, 15000);
-</script></body></html>
+<style>html,body{margin:0;height:100%;background:#000;overflow:hidden}iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}</style>
+</head><body>
+<iframe src="https://www.youtube.com/embed/$id?playsinline=1&fs=1&enablejsapi=1&origin=https%3A%2F%2Fcom.alex.hairacademy&hl=ru"
+ allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+ referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</body></html>
 """.trimIndent()
 }
