@@ -43,7 +43,7 @@ import com.hairacademy.app.data.Video
 import com.hairacademy.app.data.formatDuration
 
 /** Источник страницы для YouTube-плеера (YouTube требует Referer/origin, иначе ошибка 153). Можно заменить на свой домен. */
-private const val EMBED_ORIGIN = "https://www.youtube.com"
+private const val EMBED_ORIGIN = "https://com.hairacademy.app"
 
 fun openExternally(context: Context, url: String) {
     try {
@@ -169,6 +169,12 @@ fun YouTubePlayer(
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.mediaPlaybackRequiresUserGesture = false
+            settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            // Плеер YouTube живёт во вложенном iframe: без сторонних cookie WebView он остаётся чёрным
+            android.webkit.CookieManager.getInstance().apply {
+                setAcceptCookie(true)
+                setAcceptThirdPartyCookies(self, true)
+            }
             addJavascriptInterface(object {
                 @JavascriptInterface
                 fun onPlayerFailed(code: Int) {
@@ -196,7 +202,7 @@ fun YouTubePlayer(
                     return false
                 }
             }
-            loadDataWithBaseURL("https://www.youtube.com", playerHtml(videoId), "text/html", "utf-8", null)
+            loadDataWithBaseURL("$EMBED_ORIGIN/", playerHtml(videoId), "text/html", "utf-8", null)
         }
     }
 
